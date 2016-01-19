@@ -488,11 +488,11 @@ static void __init set_volt_table_CA7(void)
 	}
 
 #if defined(CONFIG_SOC_EXYNOS5430_L)
-	max_support_idx_CA7 = L7;	/* 1.3GHz */
+	max_support_idx_CA7 = L5;	/* 1.5GHz */
 #else
 	max_support_idx_CA7 = L5;	/* 1.5GHz */
 #endif
-	min_support_idx_CA7 = L15;	/* 500MHz */
+	min_support_idx_CA7 = L18;	/* 200MHz */
 
 	pr_info("CPUFREQ of CA7 max_freq : L%d %u khz\n", max_support_idx_CA7,
 		exynos5430_freq_table_CA7[max_support_idx_CA7].frequency);

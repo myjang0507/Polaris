@@ -74,7 +74,6 @@ static unsigned int egl_min_freq;
 static unsigned int kfc_max_freq;
 #endif
 int disable_dm_hotplug_before_suspend = 0;
-int nr_sleep_prepare_cpus = CONFIG_EXYNOS5_DYNAMIC_CPU_HOTPLUG_SLEEP_PREPARE;
 
 enum hotplug_cmd {
 	CMD_NORMAL,
@@ -84,7 +83,6 @@ enum hotplug_cmd {
 	CMD_LITTLE_IN,
 	CMD_LITTLE_ONE_IN,
 	CMD_LITTLE_ONE_OUT,
-	CMD_SLEEP_PREPARE,
 };
 
 static int on_run(void *data);
@@ -434,22 +432,7 @@ static int __ref __cpu_hotplug(bool out_flag, enum hotplug_cmd cmd)
 		if (do_disable_hotplug)
 			goto blk_out;
 
-		if (cmd == CMD_SLEEP_PREPARE) {
-			for (i = setup_max_cpus - 1; i >= NR_CA7; i--) {
-				if (cpu_online(i)) {
-					ret = cpu_down(i);
-					if (ret)
-						goto blk_out;
-				}
-			}
-			for (i = 1; i < nr_sleep_prepare_cpus; i++) {
-				if (!cpu_online(i)) {
-					ret = cpu_up(i);
-					if (ret)
-						goto blk_out;
-				}
-			}
-		}else if (cmd == CMD_BIG_OUT && !in_low_power_mode) {
+		if (cmd == CMD_BIG_OUT && !in_low_power_mode) {
 			for (i = setup_max_cpus - 1; i >= NR_CA7; i--) {
 				if (cpu_online(i)) {
 					ret = cpu_down(i);
@@ -597,7 +580,6 @@ static int dynamic_hotplug(enum hotplug_cmd cmd)
 		break;
 	case CMD_LITTLE_ONE_OUT:
 	case CMD_BIG_OUT:
-	case CMD_SLEEP_PREPARE:	
 		ret = __cpu_hotplug(true, cmd);
 		break;
 	case CMD_LITTLE_ONE_IN:
@@ -748,15 +730,8 @@ static int exynos_dm_hotplug_notifier(struct notifier_block *notifier,
 	case PM_SUSPEND_PREPARE:
 		mutex_lock(&thread_lock);
 		in_suspend_prepared = true;
-		if(nr_sleep_prepare_cpus > 1) {
-			pr_info("%s, %d : dynamic_hotplug CMD_SLEEP_PREPARE\n", __func__, __LINE__);
-			if (!dynamic_hotplug(CMD_SLEEP_PREPARE))
-				prev_cmd = CMD_LOW_POWER;
-		}
-		else {
-			if (!dynamic_hotplug(CMD_LOW_POWER))
-				prev_cmd = CMD_LOW_POWER;
-		}
+		if (!dynamic_hotplug(CMD_LOW_POWER))
+			prev_cmd = CMD_LOW_POWER;
 		exynos_dm_hotplug_disable();
 		if (dm_hotplug_task) {
 			kthread_stop(dm_hotplug_task);
@@ -858,6 +833,10 @@ static enum hotplug_cmd diagnose_condition(void)
 
 #if defined(CONFIG_CPU_FREQ_GOV_INTERACTIVE)
 	normal_min_freq = cpufreq_interactive_get_hispeed_freq(0);
+	if (!normal_min_freq)
+		normal_min_freq = NORMALMIN_FREQ;
+#elif defined(CONFIG_CPU_FREQ_GOV_CAFACTIVE)
+	normal_min_freq = cpufreq_cafactive_get_hispeed_freq(0);
 	if (!normal_min_freq)
 		normal_min_freq = NORMALMIN_FREQ;
 #else

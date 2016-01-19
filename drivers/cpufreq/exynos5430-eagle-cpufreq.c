@@ -603,7 +603,7 @@ static void __init set_volt_table_CA15(void)
 		else if (spd_sel == EGL_SPD_SEL_1900_MHZ ||
 			spd_sel == EGL_SPD_SEL_2000_MHZ ||
 			spd_sel == EGL_SPD_SEL_2100_MHZ)
-			max_support_idx_CA15 = L7;	/* 1.8 GHz */
+			max_support_idx_CA15 = L5;	/* 2.0 GHz */
 #else
 		else if (spd_sel == EGL_SPD_SEL_1700_MHZ)
 			max_support_idx_CA15 = L8;	/* 1.7 GHz */
@@ -617,7 +617,7 @@ static void __init set_volt_table_CA15(void)
 		else
 			panic("can not support speed select (0x%x)\n", spd_sel);
 	}
-	min_support_idx_CA15 = L17;	/* 800 MHz */
+	min_support_idx_CA15 = L22;	/* 300 MHz */
 
 	pr_info("CPUFREQ of CA15 max_freq : L%d %u khz\n", max_support_idx_CA15,
 		exynos5430_freq_table_CA15[max_support_idx_CA15].frequency);
