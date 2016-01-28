@@ -1,0 +1,22 @@
+# Trash Files
+include/config
+include/generated
+arch/*/include/generated
+/tags
+/TAGS
+
+# Script Files
+test.sh
+set_env.sh
+build_kernel.sh
+
+# Modified Files
+*~
+
+#Others
+/ramdisk
+HostPC/
+utility/
+*.patch
+*.sh
+
