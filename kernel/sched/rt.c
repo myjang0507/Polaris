@@ -232,6 +232,14 @@ int alloc_rt_sched_group(struct task_group *tg, struct task_group *parent)
 
 #ifdef CONFIG_SMP
 
+static int pull_rt_task(struct rq *this_rq);
+
+static inline bool need_pull_rt_task(struct rq *rq, struct task_struct *prev)
+{
+	/* Try to pull RT tasks here if we lower this rq's prio */
+	return rq->rt.highest_prio.curr > prev->prio;
+}
+
 static inline int rt_overloaded(struct rq *rq)
 {
 	return atomic_read(&rq->rd->rto_count);
@@ -899,8 +907,7 @@ static int sched_rt_runtime_exceeded(struct rt_rq *rt_rq)
 				sec_debug_aux_log(SEC_DEBUG_AUXLOG_IRQ, "TSK:%llu %s[%d]", rt_rq->rq->clock_task - rt_rq->rt_time, current->comm, current->pid);
 #endif
 
-				printk_sched("sched: RT throttling activated - [%d:%s]rq->clock_task: %llu rt_time:%llu\n",
-						current->pid, current->comm, rt_rq->rq->clock_task, rt_rq->rt_time);
+				printk_deferred("sched: RT throttling activated\n");
 			}
 		} else {
 			/*
@@ -972,6 +979,13 @@ inc_rt_prio_smp(struct rt_rq *rt_rq, int prio, int prev_prio)
 {
 	struct rq *rq = rq_of_rt_rq(rt_rq);
 
+#ifdef CONFIG_RT_GROUP_SCHED
+	/*
+	 * Change rq's cpupri only if rt_rq is the top queue.
+	 */
+	if (&rq->rt != rt_rq)
+		return;
+#endif
 	if (rq->online && prio < prev_prio)
 		cpupri_set(&rq->rd->cpupri, rq->cpu, prio);
 }
@@ -981,6 +995,13 @@ dec_rt_prio_smp(struct rt_rq *rt_rq, int prio, int prev_prio)
 {
 	struct rq *rq = rq_of_rt_rq(rt_rq);
 
+#ifdef CONFIG_RT_GROUP_SCHED
+	/*
+	 * Change rq's cpupri only if rt_rq is the top queue.
+	 */
+	if (&rq->rt != rt_rq)
+		return;
+#endif
 	if (rq->online && rt_rq->highest_prio.curr != prev_prio)
 		cpupri_set(&rq->rd->cpupri, rq->cpu, rt_rq->highest_prio.curr);
 }

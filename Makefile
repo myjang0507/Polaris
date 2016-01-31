@@ -1,6 +1,6 @@
 VERSION = 3
 PATCHLEVEL = 10
-SUBLEVEL = 9
+SUBLEVEL = 94
 EXTRAVERSION =
 NAME = TOSSUG Baby Fish
 
@@ -379,7 +379,26 @@ KBUILD_CFLAGS   := -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs \
 		   -Werror-implicit-function-declaration \
 		   -Wno-format-security \
 		   -fno-delete-null-pointer-checks \
+<<<<<<< HEAD
 		   -fdiagnostics-show-option -Werror
+=======
+		   -fdiagnostics-show-option -Werror\
+	$(call cc-disable-warning,error=unused-variable,)\
+	$(call cc-disable-warning,error=unused-const-variable,)\
+	$(call cc-disable-warning,error=misleading-indentation,)\
+	$(call cc-disable-warning,error=shift-overflow,)\
+	$(call cc-disable-warning,error=tautological-compare,)\
+	$(call cc-disable-warning,error=implicit-function-declaration)\
+	$(call cc-disable-warning,error=int-conversion)\
+	$(call cc-disable-warning,error=deprecated-declarations)\
+	$(call cc-disable-warning,error=unused-label)\
+	$(call cc-disable-warning,error=implicit-int)\
+	$(call cc-disable-warning,error=strict-prototypes)\
+	$(call cc-disable-warning,error=sequence-point)\
+	$(call cc-disable-warning,error=unused-function)\
+	$(call cc-disable-warning,error=incompatible-pointer-types)\
+	$(call cc-disable-warning,error=declaration-after-statement)
+>>>>>>> 7dd32f1... Linux 3.10.94 credit by DQ
 KBUILD_AFLAGS_KERNEL :=
 KBUILD_CFLAGS_KERNEL :=
 KBUILD_AFLAGS   := -D__ASSEMBLY__
@@ -619,6 +638,8 @@ ifndef CONFIG_FUNCTION_TRACER
 KBUILD_CFLAGS	+= -fomit-frame-pointer
 endif
 endif
+
+KBUILD_CFLAGS   += $(call cc-option, -fno-var-tracking-assignments)
 
 ifdef CONFIG_DEBUG_INFO
 KBUILD_CFLAGS	+= -g
