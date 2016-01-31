@@ -7,6 +7,10 @@ arch/*/include/generated
 
 # Script Files
 test.sh
+<<<<<<< HEAD
+=======
+patch3.sh
+>>>>>>> a4106ff... Linux 3.10.95
 set_env.sh
 build_kernel.sh
 
@@ -18,5 +22,10 @@ build_kernel.sh
 HostPC/
 utility/
 *.patch
+<<<<<<< HEAD
 *.sh
 
+=======
+*.rej
+*.orig
+>>>>>>> a4106ff... Linux 3.10.95
