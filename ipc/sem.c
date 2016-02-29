@@ -243,6 +243,7 @@ static void merge_queues(struct sem_array *sma)
 	}
 }
 
+<<<<<<< HEAD
 static void sem_rcu_free(struct rcu_head *head)
 {
 	struct ipc_rcu *p = container_of(head, struct ipc_rcu, rcu);
@@ -252,6 +253,8 @@ static void sem_rcu_free(struct rcu_head *head)
 	ipc_rcu_free(head);
 }
 
+=======
+>>>>>>> ddc88f8... Upstream to Linux 3.10.96
 /*
  * spin_unlock_wait() and !spin_is_locked() are not memory barriers, they
  * are only control barriers.
@@ -310,6 +313,7 @@ static inline int sem_lock(struct sem_array *sma, struct sembuf *sops,
 		sem_wait_array(sma);
 		return -1;
 	}
+<<<<<<< HEAD
 
 	/*
 	 * Only one semaphore affected - try to optimize locking.
@@ -328,6 +332,26 @@ static inline int sem_lock(struct sem_array *sma, struct sembuf *sops,
 	 */
 	sem = sma->sem_base + sops->sem_num;
 
+=======
+
+	/*
+	 * Only one semaphore affected - try to optimize locking.
+	 * The rules are:
+	 * - optimized locking is possible if no complex operation
+	 *   is either enqueued or processed right now.
+	 * - The test for enqueued complex ops is simple:
+	 *      sma->complex_count != 0
+	 * - Testing for complex ops that are processed right now is
+	 *   a bit more difficult. Complex ops acquire the full lock
+	 *   and first wait that the running simple ops have completed.
+	 *   (see above)
+	 *   Thus: If we own a simple lock and the global lock is free
+	 *	and complex_count is now 0, then it will stay 0 and
+	 *	thus just locking sem->lock is sufficient.
+	 */
+	sem = sma->sem_base + sops->sem_num;
+
+>>>>>>> ddc88f8... Upstream to Linux 3.10.96
 	if (sma->complex_count == 0) {
 		/*
 		 * It appears that no complex operation is around.
@@ -829,12 +853,21 @@ static int do_smart_wakeup_zero(struct sem_array *sma, struct sembuf *sops,
 	int i;
 	int semop_completed = 0;
 	int got_zero = 0;
+<<<<<<< HEAD
 
 	/* first: the per-semaphore queues, if known */
 	if (sops) {
 		for (i = 0; i < nsops; i++) {
 			int num = sops[i].sem_num;
 
+=======
+
+	/* first: the per-semaphore queues, if known */
+	if (sops) {
+		for (i = 0; i < nsops; i++) {
+			int num = sops[i].sem_num;
+
+>>>>>>> ddc88f8... Upstream to Linux 3.10.96
 			if (sma->sem_base[num].semval == 0) {
 				got_zero = 1;
 				semop_completed |= wake_const_ops(sma, num, pt);

@@ -1126,6 +1126,15 @@ static void extract_buf(struct entropy_store *r, __u8 *out)
 	__mix_pool_bytes(r, hash.w, sizeof(hash.w));
 	spin_unlock_irqrestore(&r->lock, flags);
 
+<<<<<<< HEAD
+=======
+	/*
+	 * To avoid duplicates, we atomically extract a portion of the
+	 * pool while mixing, and hash one final time.
+	 */
+	sha_transform(hash.w, extract, workspace);
+	memzero_explicit(extract, sizeof(extract));
+>>>>>>> ddc88f8... Upstream to Linux 3.10.96
 	memzero_explicit(workspace, sizeof(workspace));
 
 	/*

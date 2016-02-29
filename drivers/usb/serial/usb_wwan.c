@@ -515,6 +515,15 @@ int usb_wwan_open(struct tty_struct *tty, struct usb_serial_port *port)
 	intfdata = serial->private;
 
 	set_bit(TTY_NO_WRITE_SPLIT, &tty->flags);
+
+	if (port->interrupt_in_urb) {
+		err = usb_submit_urb(port->interrupt_in_urb, GFP_KERNEL);
+		if (err) {
+			dev_dbg(&port->dev, "%s: submit int urb failed: %d\n",
+				__func__, err);
+		}
+	}
+
 	/* Start reading from the IN endpoint */
 	for (i = 0; i < N_IN_URB; i++) {
 		urb = portdata->in_urbs[i];
@@ -645,9 +654,6 @@ int usb_wwan_port_probe(struct usb_serial_port *port)
 	spin_lock_init(&portdata->in_lock);
 
 	for (i = 0; i < N_IN_URB; i++) {
-		if (!port->bulk_in_size)
-			break;
-
 		buffer = kmalloc(IN_BUFLEN, GFP_KERNEL);
 		if (!buffer)
 			goto bail_out_error;
@@ -752,20 +758,17 @@ static void stop_read_write_urbs(struct usb_serial *serial)
 int usb_wwan_suspend(struct usb_serial *serial, pm_message_t message)
 {
 	struct usb_wwan_intf_private *intfdata = serial->private;
-	int b;
-
-	if (PMSG_IS_AUTO(message)) {
-		spin_lock_irq(&intfdata->susp_lock);
-		b = intfdata->in_flight;
-		spin_unlock_irq(&intfdata->susp_lock);
-
-		if (b || pm_runtime_autosuspend_expiration(&serial->dev->dev))
-			return -EBUSY;
-	}
 
 	spin_lock_irq(&intfdata->susp_lock);
+	if (PMSG_IS_AUTO(message)) {
+		if (intfdata->in_flight || pm_runtime_autosuspend_expiration(&serial->dev->dev)) {
+			spin_unlock_irq(&intfdata->susp_lock);
+			return -EBUSY;
+		}
+	}
 	intfdata->suspended = 1;
 	spin_unlock_irq(&intfdata->susp_lock);
+
 	stop_read_write_urbs(serial);
 
 	return 0;
@@ -828,9 +831,20 @@ int usb_wwan_resume(struct usb_serial *serial)
 				dev_err(&port->dev,
 					"%s: submit int urb failed: %d\n",
 					__func__, err);
+<<<<<<< HEAD
 			}
 		}
 
+=======
+				err_count++;
+			}
+		}
+
+		err = play_delayed(port);
+		if (err)
+			err_count++;
+
+>>>>>>> ddc88f8... Upstream to Linux 3.10.96
 		for (j = 0; j < N_IN_URB; j++) {
 			urb = portdata->in_urbs[j];
 
@@ -846,16 +860,16 @@ int usb_wwan_resume(struct usb_serial *serial)
 					__func__, err, j, urb, i);
 				usb_unanchor_urb(urb);
 				intfdata->suspended = 1;
-				spin_unlock_irq(&intfdata->susp_lock);
-				goto err_out;
+                err_count++;
 			}
 		}
-		play_delayed(port);
 	}
 	spin_unlock_irq(&intfdata->susp_lock);
 
-err_out:
-	return err;
+	if (err_count)
+		return -EIO;
+
+	return 0;
 }
 EXPORT_SYMBOL(usb_wwan_resume);
 #endif

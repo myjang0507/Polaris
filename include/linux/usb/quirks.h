@@ -43,7 +43,11 @@
 #define USB_QUIRK_NO_REMOTE_WAKEUP      0x00000800
 
 /* device generates spurious wakeup, ignore remote wakeup capability */
+<<<<<<< HEAD
 #define USB_QUIRK_IGNORE_REMOTE_WAKEUP	0x00000200
+=======
+#define USB_QUIRK_IGNORE_REMOTE_WAKEUP	0x00001000
+>>>>>>> ddc88f8... Upstream to Linux 3.10.96
 
 /* device can't handle Link Power Management */
 #define USB_QUIRK_NO_LPM			BIT(10)

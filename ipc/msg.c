@@ -211,6 +211,7 @@ static int newque(struct ipc_namespace *ns, struct ipc_params *params)
 	INIT_LIST_HEAD(&msq->q_receivers);
 	INIT_LIST_HEAD(&msq->q_senders);
 
+<<<<<<< HEAD
 	/* ipc_addid() locks msq upon success. */
 	id = ipc_addid(&msg_ids(ns), &msq->q_perm, ns->msg_ctlmni);
 	if (id < 0) {
@@ -218,6 +219,8 @@ static int newque(struct ipc_namespace *ns, struct ipc_params *params)
 		return id;
 	}
 
+=======
+>>>>>>> ddc88f8... Upstream to Linux 3.10.96
 	ipc_unlock_object(&msq->q_perm);
 	rcu_read_unlock();
 
@@ -730,7 +733,11 @@ long do_msgsnd(int msqid, long mtype, void __user *mtext,
 		rcu_read_lock();
 		ipc_lock_object(&msq->q_perm);
 
+<<<<<<< HEAD
 		ipc_rcu_putref(msq, ipc_rcu_free);
+=======
+		ipc_rcu_putref(msq);
+>>>>>>> ddc88f8... Upstream to Linux 3.10.96
 		if (msq->q_perm.deleted) {
 			err = -EIDRM;
 			goto out_unlock0;

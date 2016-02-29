@@ -128,6 +128,7 @@ void __init shm_init (void)
 }
 
 static inline struct shmid_kernel *shm_obtain_object(struct ipc_namespace *ns, int id)
+<<<<<<< HEAD
 {
 	struct kern_ipc_perm *ipcp = ipc_obtain_object(&shm_ids(ns), id);
 
@@ -152,17 +153,20 @@ static inline struct shmid_kernel *shm_obtain_object_check(struct ipc_namespace 
  * is not necessarily held.
  */
 static inline struct shmid_kernel *shm_lock(struct ipc_namespace *ns, int id)
+=======
+>>>>>>> ddc88f8... Upstream to Linux 3.10.96
 {
-	struct kern_ipc_perm *ipcp = ipc_lock(&shm_ids(ns), id);
+	struct kern_ipc_perm *ipcp = ipc_obtain_object(&shm_ids(ns), id);
 
 	if (IS_ERR(ipcp))
-		return (struct shmid_kernel *)ipcp;
+		return ERR_CAST(ipcp);
 
 	return container_of(ipcp, struct shmid_kernel, shm_perm);
 }
 
-static inline void shm_lock_by_ptr(struct shmid_kernel *ipcp)
+static inline struct shmid_kernel *shm_obtain_object_check(struct ipc_namespace *ns, int id)
 {
+<<<<<<< HEAD
 	rcu_read_lock();
 	ipc_lock_object(&ipcp->shm_perm);
 }
@@ -171,6 +175,23 @@ static void shm_rcu_free(struct rcu_head *head)
 {
 	struct ipc_rcu *p = container_of(head, struct ipc_rcu, rcu);
 	struct shmid_kernel *shp = ipc_rcu_to_struct(p);
+=======
+	struct kern_ipc_perm *ipcp = ipc_obtain_object_check(&shm_ids(ns), id);
+
+	if (IS_ERR(ipcp))
+		return ERR_CAST(ipcp);
+
+	return container_of(ipcp, struct shmid_kernel, shm_perm);
+}
+
+/*
+ * shm_lock_(check_) routines are called in the paths where the rwsem
+ * is not necessarily held.
+ */
+static inline struct shmid_kernel *shm_lock(struct ipc_namespace *ns, int id)
+{
+	struct kern_ipc_perm *ipcp = ipc_lock(&shm_ids(ns), id);
+>>>>>>> ddc88f8... Upstream to Linux 3.10.96
 
 	security_shm_free(shp);
 	ipc_rcu_free(head);
@@ -181,6 +202,11 @@ static inline void shm_rmid(struct ipc_namespace *ns, struct shmid_kernel *s)
 	ipc_rmid(&shm_ids(ns), &s->shm_perm);
 }
 
+static inline void shm_lock_by_ptr(struct shmid_kernel *ipcp)
+{
+	rcu_read_lock();
+	ipc_lock_object(&ipcp->shm_perm);
+}
 
 /* This is called by fork, once for every shm attach. */
 static void shm_open(struct vm_area_struct *vma)
@@ -217,10 +243,18 @@ static void shm_destroy(struct ipc_namespace *ns, struct shmid_kernel *shp)
 	shm_unlock(shp);
 	if (!is_file_hugepages(shm_file))
 		shmem_lock(shm_file, 0, shp->mlock_user);
+<<<<<<< HEAD
 	else if (shp->mlock_user)
 		user_shm_unlock(file_inode(shm_file)->i_size, shp->mlock_user);
 	fput(shm_file);
 	ipc_rcu_putref(shp, shm_rcu_free);
+=======
+		user_shm_unlock(file_inode(shm_file)->i_size, shp->mlock_user);
+	fput(shm_file);
+	fput (shp->shm_file);
+	security_shm_free(shp);
+	ipc_rcu_putref(shp);
+>>>>>>> ddc88f8... Upstream to Linux 3.10.96
 }
 
 /*

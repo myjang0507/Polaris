@@ -40,6 +40,10 @@
 #include <linux/wlan_plat.h>
 #endif
 
+#ifndef WLAN_PLAT_NODFS_FLAG
+#define WLAN_PLAT_NODFS_FLAG    0x01
+#endif
+
 #if !defined(CONFIG_WIFI_CONTROL_FUNC)
 #if (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 10, 58))
 #define WLAN_PLAT_NODFS_FLAG    0x01

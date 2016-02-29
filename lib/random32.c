@@ -183,9 +183,13 @@ void prandom_seed(u32 entropy)
 	 */
 	for_each_possible_cpu (i) {
 		struct rnd_state *state = &per_cpu(net_rand_state, i);
+<<<<<<< HEAD
 
 		state->s1 = __seed(state->s1 ^ entropy, 2U);
 		prandom_warmup(state);
+=======
+		state->s1 = __seed(state->s1 ^ entropy, 2);
+>>>>>>> ddc88f8... Upstream to Linux 3.10.96
 	}
 }
 EXPORT_SYMBOL(prandom_seed);
@@ -204,8 +208,23 @@ static int __init prandom_init(void)
 		struct rnd_state *state = &per_cpu(net_rand_state,i);
 		u32 weak_seed = (i + jiffies) ^ random_get_entropy();
 
+<<<<<<< HEAD
 		prandom_seed_early(state, weak_seed, true);
 		prandom_warmup(state);
+=======
+#define LCG(x)	((x) * 69069)	/* super-duper LCG */
+		state->s1 = __seed(LCG(i + jiffies), 2);
+		state->s2 = __seed(LCG(state->s1), 8);
+		state->s3 = __seed(LCG(state->s2), 16);
+
+		/* "warm it up" */
+		prandom_u32_state(state);
+		prandom_u32_state(state);
+		prandom_u32_state(state);
+		prandom_u32_state(state);
+		prandom_u32_state(state);
+		prandom_u32_state(state);
+>>>>>>> ddc88f8... Upstream to Linux 3.10.96
 	}
 
 	return 0;
@@ -272,10 +291,16 @@ static void __prandom_reseed(bool late)
 		u32 seeds[4];
 
 		get_random_bytes(&seeds, sizeof(seeds));
+<<<<<<< HEAD
 		state->s1 = __seed(seeds[0],   2U);
 		state->s2 = __seed(seeds[1],   8U);
 		state->s3 = __seed(seeds[2],  16U);
 		state->s4 = __seed(seeds[3], 128U);
+=======
+		state->s1 = __seed(seeds[0], 2);
+		state->s2 = __seed(seeds[1], 8);
+		state->s3 = __seed(seeds[2], 16);
+>>>>>>> ddc88f8... Upstream to Linux 3.10.96
 
 		prandom_warmup(state);
 	}

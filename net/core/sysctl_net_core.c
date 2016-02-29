@@ -21,7 +21,10 @@
 #include <net/net_ratelimit.h>
 
 static int zero = 0;
+<<<<<<< HEAD
 static int one = 1;
+=======
+>>>>>>> ddc88f8... Upstream to Linux 3.10.96
 static int ushort_max = USHRT_MAX;
 static int min_sndbuf = SOCK_MIN_SNDBUF;
 static int min_rcvbuf = SOCK_MIN_RCVBUF;

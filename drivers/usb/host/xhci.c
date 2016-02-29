@@ -3512,7 +3512,13 @@ void xhci_free_dev(struct usb_hcd *hcd, struct usb_device *udev)
 {
 	struct xhci_hcd *xhci = hcd_to_xhci(hcd);
 	struct xhci_virt_device *virt_dev;
+<<<<<<< HEAD
 	struct device *dev = hcd->self.controller;
+=======
+#ifndef CONFIG_USB_DEFAULT_PERSIST
+	struct device *dev = hcd->self.controller;
+#endif
+>>>>>>> ddc88f8... Upstream to Linux 3.10.96
 	unsigned long flags;
 	u32 state;
 	int i, ret;
@@ -3598,7 +3604,13 @@ static int xhci_reserve_host_control_ep_resources(struct xhci_hcd *xhci)
 int xhci_alloc_dev(struct usb_hcd *hcd, struct usb_device *udev)
 {
 	struct xhci_hcd *xhci = hcd_to_xhci(hcd);
+<<<<<<< HEAD
 	struct device *dev = hcd->self.controller;
+=======
+#ifndef CONFIG_USB_DEFAULT_PERSIST
+	struct device *dev = hcd->self.controller;
+#endif
+>>>>>>> ddc88f8... Upstream to Linux 3.10.96
 	unsigned long flags;
 	int timeleft;
 	int ret;

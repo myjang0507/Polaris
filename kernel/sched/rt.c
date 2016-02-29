@@ -907,7 +907,12 @@ static int sched_rt_runtime_exceeded(struct rt_rq *rt_rq)
 				sec_debug_aux_log(SEC_DEBUG_AUXLOG_IRQ, "TSK:%llu %s[%d]", rt_rq->rq->clock_task - rt_rq->rt_time, current->comm, current->pid);
 #endif
 
+<<<<<<< HEAD
 				printk_deferred("sched: RT throttling activated\n");
+=======
+				printk_deferred("sched: RT throttling activated - [%d:%s]rq->clock_task: %llu rt_time:%llu\n",
+						current->pid, current->comm, rt_rq->rq->clock_task, rt_rq->rt_time);
+>>>>>>> ddc88f8... Upstream to Linux 3.10.96
 			}
 		} else {
 			/*

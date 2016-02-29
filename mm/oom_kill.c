@@ -117,7 +117,7 @@ struct task_struct *find_lock_task_mm(struct task_struct *p)
 	t = NULL;
 found:
 	rcu_read_unlock();
- 
+
 	return t;
 }
 
@@ -237,7 +237,7 @@ unsigned long oom_badness(struct task_struct *p, struct mem_cgroup *memcg,
 	 * implementation used by LSMs.
 	 */
 	if (has_capability_noaudit(p, CAP_SYS_ADMIN))
-		adj -= 30;
+		points -= (points * 3) / 100;
 
 	/* Normalize to oom_score_adj units */
 	adj *= totalpages / 1000;
@@ -487,7 +487,6 @@ static struct task_struct *select_bad_process(unsigned int *ppoints,
 			chosen_points = points;
 		}
 	}
-
 	if (chosen)
 	{
 #ifdef CONFIG_OOM_SCAN_WA_PREVENT_WRONG_SEARCH
